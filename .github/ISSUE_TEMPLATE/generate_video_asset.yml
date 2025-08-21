@@ -1,0 +1,92 @@
+name: "Generate video asset"
+description: "擬似恋愛シミュレーション動画の生成（台本／音声／立ち絵／環境音／サムネ／タイトル／紹介文）をJulesに依頼するためのテンプレートです。"
+title: "[gen] 擬似恋愛動画 #?? シーン記入"
+labels: ["auto-gen", "task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Julesに動画生成を依頼します。以下の項目を埋めてください。
+        (This form is to request video generation from Jules. Please fill in the following fields.)
+
+  - type: dropdown
+    id: language
+    attributes:
+      label: "言語 (Language)"
+      description: "動画の主要言語を選択してください。"
+      options:
+        - "日本語 (Japanese)"
+        - "その他 (Other)"
+    validations:
+      required: true
+
+  - type: input
+    id: character-info
+    attributes:
+      label: "キャラ情報 (Character Info)"
+      description: "動画に登場するキャラクターの情報を入力してください。"
+      placeholder: "例：「先輩（女性・20代前半・優しい）」"
+    validations:
+      required: true
+
+  - type: input
+    id: scene-summary
+    attributes:
+      label: "シーン概要 (Scene Outline)"
+      description: "動画のシーンや状況を簡潔に説明してください。"
+      placeholder: "例：「夜の公園・水辺・風静か」"
+    validations:
+      required: true
+
+  - type: input
+    id: video-length
+    attributes:
+      label: "動画長さ（目安） (Video Length - Approx.)"
+      description: "希望する動画のおおよその長さを指定してください。"
+      placeholder: "例：「約10分」"
+    validations:
+      required: true
+
+  - type: textarea
+    id: thumbnail-catchphrase
+    attributes:
+      label: "サムネ用キャッチ文言候補 (Thumbnail Catchphrase Candidates)"
+      description: "サムネイルに使用するキャッチコピーのアイデアを3案までカンマ区切りで入力してください。（任意）"
+      placeholder: "例：「〇〇してくれない？, ふたりだけの秘密, 今夜は帰さない」"
+    validations:
+      required: false
+
+  - type: textarea
+    id: video-title
+    attributes:
+      label: "動画タイトル候補 (Video Title Candidates)"
+      description: "動画タイトルのアイデアを3案までカンマ区切りで入力してください。（任意）"
+      placeholder: "例：「【ASMR】〇〇な彼女と～, 【シチュエーションボイス】～」"
+    validations:
+      required: false
+
+  - type: textarea
+    id: video-description
+    attributes:
+      label: "紹介文候補 (Description Candidates)"
+      description: "動画の紹介文（概要欄用）のアイデアを1～2文、カンマ区切りで入力してください。（任意）"
+      placeholder: "例：「これは、あなたと〇〇が体験する、ある夜の物語。」"
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: "禁止トーン・注意事項 (Forbidden Tones / Notes)"
+      description: "避けてほしい表現やトーン、その他注意事項があれば記入してください。（任意）"
+      placeholder: "例：「実在の人物や場所を想起させる表現は避ける、過度に露骨な表現は使用しない」"
+    validations:
+      required: false
+
+  - type: textarea
+    id: remarks
+    attributes:
+      label: "備考 (Remarks)"
+      description: "その他、補足事項や特別な希望があればご記入ください。（任意）"
+    validations:
+      required: false
