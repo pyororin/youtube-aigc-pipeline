@@ -16,6 +16,7 @@ Google の画像生成モデル **Imagen 4** を **REST API** 経由で直接利
 - **形式**: PNG（背景透過プロンプトを推奨）
 - **ファイル名**: `<キャラ名>_front.png` (例: `Aoi_Misaki_front.png`)
 - **出力先**: `/assets/issues/<ISSUE-ID>/images/`
+- **文字の有無**: **立ち絵にはいかなる文字も含めないこと**。
 - **AI生成の明記**: 生成された画像には、Google の **SynthID** によって電子透かしが自動的に埋め込まれます。
 
 ### メタデータ
@@ -50,6 +51,7 @@ Google の画像生成モデル **Imagen 4** を **REST API** 経由で直接利
 ### 基本方針
 - **英語推奨**: Imagen 4 モデルは英語プロンプトで最も性能を発揮します。キャラクター名やシーンの指定など、動的な要素はスクリプト内で英語に変換するか、初めから英語で入力することが推奨されます。
 - **具体的かつ詳細に**: 画風、表情、髪、衣装、構図、ライティング、背景などを具体的に記述します。
+- **台本との整合性**: **台本に登場するキャラクターの描写と齟齬がないよう**、プロンプトを設計してください。
 
 **プロンプト例（スクリプト内で生成される文字列の例）:**
 > "A high-quality anime-style character illustration of 'Aoi Misaki'. Details: soft smile, gentle expression, soft brown wavy hair, wearing a school uniform with a ribbon. Style: anime, cell-shaded, clean line, high quality. Composition: upper body, front-facing, even margins, in a sunlit classroom. Lighting: soft backlight, pastel tone. Output format: 2048x2048, PNG, transparent background."
