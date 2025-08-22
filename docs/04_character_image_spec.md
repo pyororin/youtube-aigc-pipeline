@@ -19,12 +19,14 @@ AI ツール（Gemini など）を活用し、高品質かつ一貫性のある�
 - 照明：ソフトライティング or 夕暮れの暖色調、背景と調和するライティング
 
 ### 背景
-- 単色またはぼかし背景（背景をシーンに合わせて薄く演出）
-- sfや自然などシーンとの差異を活かしたアレンジも可
+- **透過PNG**：キャラクターを切り抜いて使用する場合。
+- **単色またはぼかし背景**：背景をシンプルに演出する場合。
+- **台本指定の背景**：台本やシーンの指示に基づき、具体的な背景を描画する場合。
+- sfや自然などシーンとの差異を活かしたアレンジも可。
 
 ### 技術指標
 - **アスペクト比**：1:1 正方形（例：2048×2048 px）
-- **フォーマット**：透過 PNG（背景透過）
+- **フォーマット**：PNG（背景が不要な場合は透過PNG）
 - **メタデータ**：SynthID 等、AI生成識別メタ情報埋め込みの確認
 
 ## 3. 出力仕様・保存先
@@ -45,15 +47,22 @@ AI ツール（Gemini など）を活用し、高品質かつ一貫性のある�
   ```
 
 ## 4. 自己チェック項目
-- 画像サイズが正しいか（2048×2048 px、透過PNG）
-- キャラクターの目・表情・髪のディテールが明瞭であるか
-- 背景はシンプル or シーンに合っているか、キャラを引き立てているか
-- SynthID が埋め込まれていること、または AI 生成の明記があるか
-- カラーバランスが崩れていないか（過剰な彩度や変な影がないか）
+- 画像サイズが正しいか（2048×2048 px、PNG形式）。
+- 背景は指定通りか（透過・単色・台本指定など）、キャラクターを引き立てているか。
+- キャラクターの目・表情・髪のディテールが明瞭であるか。
+- SynthID が埋め込まれていること、または AI 生成の明記があるか。
+- カラーバランスが崩れていないか（過剰な彩度や変な影がないか）。
 
 ## 5. プロンプト例（出力例）
+
+### 背景ありの例
 ```
-"Anime style half-body portrait, 20-year-old female senpai with soft brown wavy hair, large green sparkling eyes, warm smile, school uniform with ribbon, front-facing, cell-shaded, soft backlight, pastel pink bokeh background, 2048x2048, transparent background"
+"Anime style half-body portrait, 20-year-old female senpai with soft brown wavy hair, large green sparkling eyes, warm smile, school uniform with ribbon, front-facing, cell-shaded, soft backlight, in a sunlit classroom, 2048x2048"
+```
+
+### 透過背景の例
+```
+"Anime style half-body portrait, 20-year-old female senpai with soft brown wavy hair, large green sparkling eyes, warm smile, school uniform with ribbon, front-facing, cell-shaded, soft backlight, plain white background, 2048x2048, transparent background"
 ```
 
 ## 6. 参考文献
