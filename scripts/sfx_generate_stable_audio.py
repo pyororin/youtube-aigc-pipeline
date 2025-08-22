@@ -31,9 +31,10 @@ class SfxGenerator:
         self.base_url = base_url
         self.headers = {
             "Authorization": f"Bearer {self.api_key}",
-            "Accept": "audio/*",  # Request audio content
+            "Content-Type": "application/json",
+            "Accept": "application/json",
         }
-        self.api_endpoint = f"{self.base_url}/v2beta/audio/stable-audio-2/text-to-audio"
+        self.api_endpoint = f"{self.base_url}/v2beta/audio/text-to-audio"
 
     def _translate_prompt(self, prompt_text: str) -> str:
         """
@@ -82,14 +83,11 @@ class SfxGenerator:
 
         data_payload = {
             "prompt": prompt_text,
-            "duration": str(duration_sec),
+            "duration": duration_sec,
             "format": "wav",
         }
         if seed:
-            data_payload["seed"] = str(seed)
-
-        # Format for multipart/form-data without sending filenames
-        files_payload = {k: (None, v) for k, v in data_payload.items()}
+            data_payload["seed"] = seed
 
         max_retries = 5
         base_delay = 2
@@ -102,14 +100,17 @@ class SfxGenerator:
                 response = requests.post(
                     self.api_endpoint,
                     headers=self.headers,
-                    files=files_payload,  # Send as multipart/form-data
+                    json=data_payload,  # Send as JSON
                     timeout=180,
                 )
                 response.raise_for_status()
 
-                # Success: response body is the raw audio data
-                audio_data = response.content
-                actual_seed = int(response.headers.get("seed", seed or 0))
+                # Success: response body is JSON with base64 audio
+                response_json = response.json()
+                audio_data = base64.b64decode(response_json["audio"][0]["data"])
+                actual_seed = response_json.get("seed") or response_json["audio"][
+                    0
+                ].get("seed", seed or 0)
 
                 logging.info(f"Successfully generated audio with seed: {actual_seed}")
                 return audio_data, actual_seed
@@ -122,7 +123,7 @@ class SfxGenerator:
                     error_json = e.response.json()
                     error_message = json.dumps(error_json)
                 except json.JSONDecodeError:
-                    pass # Keep the raw text if not JSON
+                    pass  # Keep the raw text if not JSON
 
                 if status_code == 404:
                     logging.error(
@@ -182,6 +183,12 @@ def main():
         default="ja",
         help="Language of the prompts ('ja' for Japanese, 'en' for English).",
     )
+    parser.add_argument(
+        "--max-sfx",
+        type=int,
+        default=5,
+        help="Maximum number of SFX to generate per run (default: 5).",
+    )
 
     args = parser.parse_args()
 
@@ -205,9 +212,26 @@ def main():
 
     # --- Process Prompts ---
     with open(prompts_file, "r", encoding="utf-8") as f:
-        prompts = [line.strip() for line in f if line.strip()]
+        all_prompts = [line.strip() for line in f if line.strip()]
 
-    for prompt in prompts:
+    sfx_total_in_script = len(all_prompts)
+    sfx_limit = args.max_sfx
+    prompts_to_process = all_prompts[:sfx_limit]
+    sfx_generated_count = len(prompts_to_process)
+    sfx_skipped_count = sfx_total_in_script - sfx_generated_count
+
+    if sfx_total_in_script > sfx_limit:
+        logging.warning(
+            f"prompts-file には {sfx_total_in_script} 件ありますが、上限 {sfx_limit} 件のみ生成します"
+            f"（残り {sfx_skipped_count} 件はスキップ）。"
+        )
+
+    if sfx_generated_count == 0:
+        logging.error("制限適用後に処理対象のプロンプトが 0 件になりました。")
+        sys.exit(1)
+
+    generated_metadata = []
+    for prompt in prompts_to_process:
         try:
             audio_data, final_seed = generator.generate(
                 prompt_text=prompt,
@@ -223,7 +247,7 @@ def main():
                 wav_file.write(audio_data)
             logging.info(f"Saved audio to {filepath}")
 
-            # Append metadata to index
+            # Store metadata for later
             metadata = {
                 "file": filename,
                 "prompt": prompt,
@@ -233,12 +257,35 @@ def main():
                 "issue_id": args.issue_id,
                 "created_at": datetime.utcnow().isoformat() + "Z",
             }
-            with open(index_file, "a", encoding="utf-8") as idx:
-                idx.write(json.dumps(metadata, ensure_ascii=False) + "\n")
+            generated_metadata.append(metadata)
 
         except Exception as e:
             logging.error(f"Could not process prompt '{prompt}'. Reason: {e}")
             # Continue to the next prompt
+
+    # --- Write Metadata ---
+    if generated_metadata:
+        run_summary = {
+            "type": "run_summary",
+            "prompts_file": str(prompts_file),
+            "sfx_limit": sfx_limit,
+            "sfx_total_in_script": sfx_total_in_script,
+            "sfx_generated": len(generated_metadata),
+            "sfx_skipped": sfx_total_in_script - len(generated_metadata),
+            "created_at": datetime.utcnow().isoformat() + "Z",
+        }
+
+        old_content = ""
+        if index_file.exists():
+            with open(index_file, "r", encoding="utf-8") as f:
+                old_content = f.read()
+
+        with open(index_file, "w", encoding="utf-8") as f:
+            f.write(json.dumps(run_summary, ensure_ascii=False) + "\n")
+            for metadata in generated_metadata:
+                f.write(json.dumps(metadata, ensure_ascii=False) + "\n")
+            if old_content:
+                f.write(old_content)
 
     logging.info("SFX generation process complete.")
 
