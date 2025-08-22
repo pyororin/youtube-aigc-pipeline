@@ -1,0 +1,24 @@
+{
+  "image": {
+    "width": 2048,
+    "height": 2048,
+    "format": "png",
+    "model": "imagen-4.0-generate-001",
+    "style": "anime-cell-shaded",
+    "lighting": "soft backlight, pastel tone",
+    "prompt_summary": "Aoi Misaki, anime, cell-shaded, clean line, high quality"
+  },
+  "script": {
+    "special_rule": "dialog_only_sfx_romantic_focus",
+    "tone": "romantic_invocation",
+    "sound_cues": {
+      "used": true,
+      "format": "japanese_onomatopoeia_with_description"
+    },
+    "word_count_estimate": 1400
+  },
+  "thumbnail": {
+    "resolution": "1280x720",
+    "text_source": "thumb_text.txt"
+  }
+}
