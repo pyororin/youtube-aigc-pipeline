@@ -67,14 +67,9 @@ LIGHTING=$(get_config "lighting")
 COMPOSITION=$(get_config "composition")
 OUTPUT_FORMAT=$(get_config "output_format")
 
-# Issue からの動的な指定（例：シーン情報）は、ここで英語に変換して結合する想定
-# 例: SCENE_JP="日当たりの良い教室" -> SCENE_EN="in a sunlit classroom"
-# ここでは固定値を使用
-SCENE_EN="in a sunlit classroom"
-
 # Imagen 4 向けに、すべての要素を結合した英語プロンプトを作成
 # 第3引数で渡されたキャラクターの詳細設定をプロンプトの中心に据える
-PROMPT="A high-quality anime-style character illustration of '${CHARACTER_NAME}'. Details: ${CHARACTER_DETAILS}. Style: ${STYLE}. Composition: ${COMPOSITION}, ${SCENE_EN}. Lighting: ${LIGHTING}. Output format: ${OUTPUT_FORMAT}."
+PROMPT="A high-quality anime-style character illustration of '${CHARACTER_NAME}'. Details: ${CHARACTER_DETAILS}. Style: ${STYLE}. Composition: ${COMPOSITION}. Lighting: ${LIGHTING}. Output format: ${OUTPUT_FORMAT}."
 
 echo "生成用プロンプトを構築しました。"
 
