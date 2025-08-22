@@ -1,0 +1,36 @@
+{
+  "issue_id": 3,
+  "character": "先輩",
+  "scene": "夜の公園、水辺、風静か",
+  "duration_target_min": 10,
+  "thumbnail_catchphrases": [
+    "先輩、今夜だけ",
+    "寄り道しよ？",
+    "隣、空いてるよ"
+  ],
+  "video_title_candidates": [
+    "先輩と公園で夜デート",
+    "静かな夜、胸キュントーク",
+    "夜風と先輩と私"
+  ],
+  "description_candidates": [
+    "夜の公園で先輩と…",
+    "儚く甘いひとときをどうぞ…"
+  ],
+  "special_rule": "dialog_only_sfx_romantic_focus",
+  "tone": "romantic_invocation",
+  "sound_cues": {
+    "used": true,
+    "format": "japanese_onomatopoeia_with_description"
+  },
+  "word_count_estimate": 1500,
+  "image": {
+    "width": 2048,
+    "height": 2048,
+    "format": "png",
+    "model": "imagen-4.0-generate-001",
+    "style": "anime-cell-shaded",
+    "lighting": "soft backlight, pastel tone",
+    "prompt_summary": "Senpai, anime, cell-shaded, clean line, high quality"
+  }
+}
