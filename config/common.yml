@@ -1,0 +1,17 @@
+# 共通設定ファイル
+#
+# このファイルは、画像生成など、リポジトリ全体で共通のデフォルト設定を定義します。
+# スクリプトは、ここから値を読み込んでプロンプトなどを構築します。
+
+image_generation:
+  # ベースとなる画風や品質に関する設定
+  style: "anime, cell-shaded, clean line, high quality"
+  lighting: "soft backlight, pastel tone"
+  composition: "upper body, front-facing, even margins"
+  output_format: "2048x2048, PNG, transparent background"
+
+  # キャラクターの基本設定（服装などはIssueごとに上書きされる）
+  base_character:
+    age: "early 20s"
+    expression: "soft smile, gentle expression"
+    eyes: "large, expressive eyes"
