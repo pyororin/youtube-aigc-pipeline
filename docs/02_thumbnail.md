@@ -132,6 +132,25 @@ rm text_layer.png
 - **フォント**: コマンドを実行する環境に、指定の日本語フォントがインストールされている必要があります。（`scripts/setup_thumbnail_env.sh` を参照）
 - **座標指定**: `-geometry` オプションでの座標指定（例: `+50+100`）は、画像の左上からのオフセットです。レイアウトは試行錯誤して調整する必要があります。
 
+### 2.6. サムネイルテキストの自動生成
+
+サムネイル用のキャッチコピーは、`scripts/generate_thumbnail_text.sh` を使用して、台本から自動生成できます。
+このスクリプトは、指定された台本（`.md`ファイル）を読み込み、LLM（Gemini）に問い合わせて、複数のサムネイルテキスト候補をJSON形式で出力します。
+
+**実行方法:**
+
+```bash
+./scripts/generate_thumbnail_text.sh <issue_id> <path_to_script.md>
+```
+
+- **`<issue_id>`**: 生成物を格納するディレクトリ名（例: `123`）
+- **`<path_to_script.md>`**: 読み込ませる台本ファイルのパス（例: `docs/01_workflow.md`）
+
+**出力:**
+
+実行後、`assets/issues/<issue_id>/thumbnail_text.json` に、`serif_text` や `situation_text` を含むJSONファイルが生成されます。
+このJSONの内容を元に、デザイナーや次の合成工程でサムネイル画像が作成されます。
+
 ## 3. PR本文サマリ例
 
 サムネイル文言配置概要
