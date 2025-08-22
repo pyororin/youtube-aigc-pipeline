@@ -14,15 +14,16 @@
 set -euo pipefail
 
 # --- 1. 引数のチェック ---
-if [ "$#" -ne 2 ]; then
+if [ "$#" -ne 3 ]; then
   echo "エラー: 不正な引数です。"
-  echo "使い方: $0 <ISSUE_ID> \"<キャラクター名 (英語推奨)>\""
+  echo "使い方: $0 <ISSUE_ID> \"<キャラクター名>\" \"<キャラクターの詳細な説明>\""
+  echo "例: $0 123 \"Aoi Misaki\" \"A girl with long, black hair, wearing a red dress and a silver necklace\""
   exit 1
 fi
 
 ISSUE_ID=$1
-# Imagen 4 は英語プロンプトを推奨するため、キャラクター名も英語表記を想定
 CHARACTER_NAME=$2
+CHARACTER_DETAILS=$3
 CONFIG_FILE="config/common.yml"
 OUTPUT_DIR="assets/issues/${ISSUE_ID}/images"
 METADATA_FILE="assets/issues/${ISSUE_ID}/metadata.json"
@@ -65,9 +66,6 @@ STYLE=$(get_config "style")
 LIGHTING=$(get_config "lighting")
 COMPOSITION=$(get_config "composition")
 OUTPUT_FORMAT=$(get_config "output_format")
-BASE_EXPRESSION=$(grep "^    expression:" "$CONFIG_FILE" | sed -e 's/.*: "//' -e 's/"$//')
-HAIR_STYLE="soft brown wavy hair"
-OUTFIT="school uniform with a ribbon"
 
 # Issue からの動的な指定（例：シーン情報）は、ここで英語に変換して結合する想定
 # 例: SCENE_JP="日当たりの良い教室" -> SCENE_EN="in a sunlit classroom"
@@ -75,7 +73,8 @@ OUTFIT="school uniform with a ribbon"
 SCENE_EN="in a sunlit classroom"
 
 # Imagen 4 向けに、すべての要素を結合した英語プロンプトを作成
-PROMPT="A high-quality anime-style character illustration of '${CHARACTER_NAME}'. Details: ${BASE_EXPRESSION}, ${HAIR_STYLE}, wearing a ${OUTFIT}. Style: ${STYLE}. Composition: ${COMPOSITION}, ${SCENE_EN}. Lighting: ${LIGHTING}. Output format: ${OUTPUT_FORMAT}."
+# 第3引数で渡されたキャラクターの詳細設定をプロンプトの中心に据える
+PROMPT="A high-quality anime-style character illustration of '${CHARACTER_NAME}'. Details: ${CHARACTER_DETAILS}. Style: ${STYLE}. Composition: ${COMPOSITION}, ${SCENE_EN}. Lighting: ${LIGHTING}. Output format: ${OUTPUT_FORMAT}."
 
 echo "生成用プロンプトを構築しました。"
 

@@ -15,7 +15,7 @@
 
 ## 2. 生成フロー
 
-サムネイルは、以下の2つの要素をメインに合成されます。
+サムネイルは、以下の要素を**台本**の世界観や文脈に沿って合成することで生成されます。
 
 1.  **立ち絵**: `character.png`として生成された、背景透過済みのキャラクター画像。
 2.  **日本語テキスト**: 動画タイトルや内容を元に、YouTubeの動画一覧で視聴者の目を引くよう、サムネイル専用に生成されたキャッチーなテキスト。
@@ -58,7 +58,11 @@ YouTubeのサムネイルには2MBのサイズ制限があるため、適切な�
 # 変数設定
 CATCHY_TEXT=$(cat thumb_text.txt)
 FONT_PATH="/usr/share/fonts/opentype/noto/NotoSansJP-Bold.ttf"
-OUTPUT_THUMBNAIL="thumbnail.jpg"
+OUTPUT_DIR="thumb"
+OUTPUT_THUMBNAIL="${OUTPUT_DIR}/thumbnail.jpg"
+
+# 出力ディレクトリがなければ作成
+mkdir -p "$OUTPUT_DIR"
 
 # 1. テキストレイヤーを生成（白文字・黒縁）
 convert \
@@ -87,6 +91,7 @@ rm text_layer.png
 
 ## 5. 注意点
 
+- **出力先**: **`thumb/` ディレクトリ**に格納してください。
 - **解像度**: 最終的な出力サムネイルの解像度は **1280x720** ピクセルに準拠する必要があります。
 - **ファイル形式**: **JPG**形式で出力します。
 - **ファイルサイズ**: **2MB**の制限を超えないように `-quality` オプションで調整が必要です。
