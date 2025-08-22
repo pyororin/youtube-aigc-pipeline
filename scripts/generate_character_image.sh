@@ -65,7 +65,7 @@ STYLE=$(get_config "style")
 LIGHTING=$(get_config "lighting")
 COMPOSITION=$(get_config "composition")
 OUTPUT_FORMAT=$(get_config "output_format")
-BASE_EXPRESSION=$(get_config "expression")
+BASE_EXPRESSION=$(grep "^    expression:" "$CONFIG_FILE" | sed -e 's/.*: "//' -e 's/"$//')
 HAIR_STYLE="soft brown wavy hair"
 OUTFIT="school uniform with a ribbon"
 
@@ -128,13 +128,14 @@ jq \
   --arg format "png" \
   --arg model "$MODEL_NAME" \
   --arg prompt_summary "${CHARACTER_NAME}, ${STYLE}" \
+  --arg lighting "$(get_config "lighting")" \
   '.image = {
     "width": $width,
     "height": $height,
     "format": $format,
     "model": $model,
     "style": "anime-cell-shaded",
-    "lighting": "'$(get_config "lighting")'",
+    "lighting": $lighting,
     "prompt_summary": $prompt_summary
   }' \
   "$METADATA_FILE" > "${METADATA_FILE}.tmp" && mv "${METADATA_FILE}.tmp" "$METADATA_FILE"
