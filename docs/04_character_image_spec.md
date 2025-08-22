@@ -1,70 +1,96 @@
 # 立ち絵アセット（アニメ調キャラクター画像）作成仕様
 
-## 1. 目的と概要
-このドキュメントは、**立ち絵アセット（アニメ調キャラクター画像）**作成の仕様を定義します。
-AI ツール（Gemini など）を活用し、高品質かつ一貫性のある立ち絵を生成するための設計ガイドです。
+## 1. 目的
+本ドキュメントは、**立ち絵アセット（アニメ調キャラクター画像）**作成の標準的なフローを定義します。
+**Gemini API** を **Gemini CLI** 経由で利用し、高品質かつ一貫性のある立ち絵を効率的に生成することを目的とします。
 
-## 2. プロンプト設計のベストプラクティス（アニメ調立ち絵生成）
+生成プロセスは `scripts/` 配下のシェルスクリプトに集約されており、手動でのコマンド実行を不要にします。
 
-### 視覚要素の具体化
-- **目**：大きく感情豊かな瞳、虹彩の輝き、ハイライト
-- **髪**：長さ・質感（ストレート／ウェーブ／編み込み）、カラー（ナチュラル or 鮮やか）
-- **表情**：優しい微笑・恥じらい・視線など、キャラクターの性格に応じた感情を
-- **ポーズ**：肩から上中心、軽く見返す視線、手のしぐさなど演出を含む
-- **衣装**：制服・カジュアル・ガーリースタイル、装飾やアクセの有無
+## 2. 前提・要件
 
-### 画風・演出指定
-- 清潔な線画／セルシェーディング
-- 柔らかいグラデーション or パステル配色
-- 照明：ソフトライティング or 夕暮れの暖色調、背景と調和するライティング
+### 必須環境
+- **OS**: macOS または Linux (Windows は WSL2 を推奨)
+- **Node.js**: `20` 以上のバージョン
+- **認証**: Google アカウント (OAuth) または Gemini API キー
 
-### 背景
-- **透過PNG**：キャラクターを切り抜いて使用する場合。
-- **単色またはぼかし背景**：背景をシンプルに演出する場合。
-- **台本指定の背景**：台本やシーンの指示に基づき、具体的な背景を描画する場合。
-- sfや自然などシーンとの差異を活かしたアレンジも可。
+### 生成画像の仕様
+- **解像度**: 2048×2048 ピクセル（正方形）を推奨
+- **形式**: PNG（背景透過を推奨）
+- **ファイル名**: `<キャラ名>_front.png` (例: `aoi_misaki_front.png`)
+- **出力先**: `/assets/issues/<ISSUE-ID>/images/`
+- **AI生成の明記**: 生成された画像には、Google の **SynthID** によって電子透かしが自動的に埋め込まれます。これは、AI によって生成されたコンテンツであることを示すためのものです。
 
-### 技術指標
-- **アスペクト比**：1:1 正方形（例：2048×2048 px）
-- **フォーマット**：PNG（背景が不要な場合は透過PNG）
-- **メタデータ**：SynthID 等、AI生成識別メタ情報埋め込みの確認
-
-## 3. 出力仕様・保存先
-- **ファイル名**：`character.png` または `<キャラ名>_front.png` のように命名
-- **保存パス**：`/assets/issues/<ISSUE-ID>/images/`
-- **`metadata.json` に以下情報を記録**：
-  ```json
-  {
-    "image": {
-      "width": 2048,
-      "height": 2048,
-      "format": "png",
-      "style": "anime-cell-shaded",
-      "lighting": "soft",
-      "character_prompt_summary": "<短いプロンプト要約>"
-    }
+### メタデータ
+画像生成に成功すると、`/assets/issues/<ISSUE-ID>/metadata.json` に以下の情報が自動的に追記されます。
+```json
+{
+  "image": {
+    "width": 2048,
+    "height": 2048,
+    "format": "png",
+    "style": "anime-cell-shaded",
+    "lighting": "soft backlight",
+    "prompt_summary": "<キャラクター名>, anime style, front-facing"
   }
-  ```
-
-## 4. 自己チェック項目
-- 画像サイズが正しいか（2048×2048 px、PNG形式）。
-- 背景は指定通りか（透過・単色・台本指定など）、キャラクターを引き立てているか。
-- キャラクターの目・表情・髪のディテールが明瞭であるか。
-- SynthID が埋め込まれていること、または AI 生成の明記があるか。
-- カラーバランスが崩れていないか（過剰な彩度や変な影がないか）。
-
-## 5. プロンプト例（出力例）
-
-### 背景ありの例
-```
-"Anime style half-body portrait, 20-year-old female senpai with soft brown wavy hair, large green sparkling eyes, warm smile, school uniform with ribbon, front-facing, cell-shaded, soft backlight, in a sunlit classroom, 2048x2048"
+}
 ```
 
-### 透過背景の例
+## 3. 実行フロー
+立ち絵の生成は、以下のスクリプトを実行することで行います。
+
+### Step 1: 環境セットアップ (エージェント担当)
+画像生成に必要な `Gemini CLI` のインストールと認証は、担当エージェント (Jules) が自動的に行います。
+ユーザーが手動でセットアップ作業を行う必要はありません。
+
+### Step 2: 画像生成 (ユーザー/エージェント担当)
+`scripts/generate_character_image.sh` を実行し、プロンプトに基づいた立ち絵を生成します。
+```bash
+# ISSUE-ID とキャラクター名を指定して実行
+./scripts/generate_character_image.sh <ISSUE-ID> "<キャラクター名>"
 ```
-"Anime style half-body portrait, 20-year-old female senpai with soft brown wavy hair, large green sparkling eyes, warm smile, school uniform with ribbon, front-facing, cell-shaded, soft backlight, plain white background, 2048x2048, transparent background"
+このスクリプトは、引数で受け取った情報と `config/common.yml` に定義された共通設定を組み合わせてプロンプトを動的に構築し、**Gemini CLI を非対話モードで呼び出し**ます。
+成功すると、base64形式の画像レスポンスをデコードし、指定のパスにPNGとして保存後、`metadata.json` を更新します。
+
+## 4. プロンプト設計
+プロンプトは、`generate_character_image.sh` スクリプト内で組み立てられます。ベースとなるプロンプトの設計指針は以下の通りです。
+
+- **画風**: `anime`, `cell-shaded`, `clean line` などを指定。
+- **顔・表情**: 大きな瞳、柔らかい微笑み、視線の向きなど、キャラクターの性格を反映。
+- **髪**: 長さ、色、質感（例: `soft brown wavy hair`）。
+- **衣装**: Issue で指定された制服や私服を反映。
+- **ライティング**: `soft backlight`, `pastel tone` などで雰囲気作り。
+- **構図**: `上半身 (upper body)`, `正面向き (front-facing)`, `均等な余白 (even margins)`。
+- **出力形式**: `2048x2048`, `PNG`, `transparent background`（背景透過）。
+
+**プロンプト例（スクリプト内で使用される文章の例）:**
+> 「セル調のアニメ立ち絵、キャラクター名「<名前>」、20代前半、柔らかな表情、大きな緑色の瞳、ソフトブラウンのウェーブヘア。白いブラウスと青いスカートの制服を着用。上半身の構図で、ライティングは柔らかい逆光。2048×2048ピクセルのPNG形式で、背景は透過。」
+
+## 5. 自己チェックリスト
+生成後は、以下の項目を必ず確認してください。
+
+- [ ] `scripts/setup_gemini_cli.sh` によるセットアップは完了しているか？
+- [ ] 画像の仕様（2048x2048, PNG, 透過背景）を満たしているか？
+- [ ] ファイルサイズは適切か？（過度に大きくないか）
+- [ ] `metadata.json` への追記は正しく行われているか？
+- [ ] AI生成である旨の表記（SynthID）について理解しているか？
+- [ ] 生成に失敗した場合、スクリプトのログを確認し、再実行の手順を理解しているか？
+
+## 6. PR（Pull Request）本文テンプレート
+```markdown
+## 立ち絵生成 概要
+- **キャラ**: <Issue指定名>
+- **スタイル**: anime / セル調 / soft backlight
+- **解像度/形式**: 2048×2048 / PNG（透過）
+- **実行方法**: Gemini CLI（非対話モード）を利用。プロンプトは Issue 情報 + `common.yml` から構成。
+- **保存先**: `/assets/issues/<ISSUE-ID>/images/<キャラ名>_front.png`
+- **備考**: SynthID（自動埋め込み）、メタデータ (`metadata.json`) 更新済み。
 ```
 
-## 6. 参考文献
-- AI画像生成においては、Promptsの詳細度が品質を左右します。AI Art Revolution のガイドでは、目・髪・表情・lightingなどの指定が重要であるとされています。
-- また、MidJourneyやStable Diffusionでのベストプラクティスでは、「シンプルかつ具体的な記述」で質の高い立ち絵が得られるとされています。
+---
+## 脚注・出典
+- **Gemini CLI 公式リポジトリ (GitHub)**
+  [https://github.com/google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli)
+- **Gemini API: 画像生成ドキュメント**
+  [https://ai.google.dev/gemini-api/docs/image-generation?hl=ja](https://ai.google.dev/gemini-api/docs/image-generation?hl=ja)
+- **SynthID (DeepMind) 概要**
+  [https://deepmind.google/science/synthid/](https://deepmind.google/science/synthid/)
