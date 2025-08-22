@@ -26,6 +26,7 @@ CHARACTER_NAME=$2
 CONFIG_FILE="config/common.yml"
 OUTPUT_DIR="assets/issues/${ISSUE_ID}/images"
 METADATA_FILE="assets/issues/${ISSUE_ID}/metadata.json"
+
 # ファイル名用にスペースをアンダースコアに置換
 IMAGE_NAME="${CHARACTER_NAME// /_}_front.png"
 OUTPUT_PATH="${OUTPUT_DIR}/${IMAGE_NAME}"
