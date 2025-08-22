@@ -1,5 +1,9 @@
 # CoeFont Standard (tts_input_all.txt) 運用
 
+【重要】現在CoeFont APIは利用できないため、音声生成は手動で行う必要があります。以下の手順に従ってください。
+
+---
+
 このドキュメントでは、台本ファイル（`script.md`）から自動生成された `tts_input_all.txt` を使って、CoeFont で音声合成を行う手順について説明します。
 
 ## 概要
