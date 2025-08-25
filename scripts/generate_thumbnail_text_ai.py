@@ -9,9 +9,19 @@ import sys
 
 def main(issue_id, script_file):
     """
-    AIを使用してサムネイルテキストを生成し、JSONファイルとして保存する。
+    AIを使用してサムネイルテキストを生成し、JSONファイルとして保存します。
+
+    このスクリプトは、docs/02_thumbnail.md からプロンプトを読み込み、
+    引数で指定された台本ファイルと組み合わせて、Gemini CLIに渡します。
+    出力は assets/issues/<issue_id>/thumbnail_text.json に保存されます。
+
+    使い方:
+        python scripts/generate_thumbnail_text_ai.py <issue_id> <script_file>
+
+    例:
+        python scripts/generate_thumbnail_text_ai.py 3 assets/issues/3/text/script.txt
     """
-    prompt_file = "docs/02_thumbnail_prompt.md"
+    prompt_file = "docs/02_thumbnail.md"
     output_dir = f"assets/issues/{issue_id}"
     output_file = os.path.join(output_dir, "thumbnail_text.json")
 
@@ -35,7 +45,16 @@ def main(issue_id, script_file):
 
     # プロンプトと台本の内容を読み込む
     with open(prompt_file, "r", encoding="utf-8") as f:
-        prompt_content = f.read()
+        full_content = f.read()
+
+    # --- Extract the specific prompt section from the markdown file ---
+    prompt_marker = "# サムネイルテキスト生成AIプロンプト"
+    prompt_start_index = full_content.find(prompt_marker)
+    if prompt_start_index == -1:
+        print(f"Error: Prompt marker '{prompt_marker}' not found in '{prompt_file}'", file=sys.stderr)
+        sys.exit(1)
+    prompt_content = full_content[prompt_start_index:]
+
     with open(script_file, "r", encoding="utf-8") as f:
         script_content = f.read()
 
