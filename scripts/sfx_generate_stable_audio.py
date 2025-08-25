@@ -31,10 +31,9 @@ class SfxGenerator:
         self.base_url = base_url
         self.headers = {
             "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
             "Accept": "application/json",
         }
-        self.api_endpoint = f"{self.base_url}/v2beta/audio/text-to-audio"
+        self.api_endpoint = f"{self.base_url}/v2beta/audio/stable-audio-2/text-to-audio"
 
     def _translate_prompt(self, prompt_text: str) -> str:
         """
@@ -81,13 +80,13 @@ class SfxGenerator:
         if lang == "ja":
             prompt_text = self._translate_prompt(prompt_text)
 
-        data_payload = {
-            "prompt": prompt_text,
-            "duration": duration_sec,
-            "format": "wav",
+        files = {
+            'prompt': (None, prompt_text),
+            'duration': (None, str(duration_sec)),
+            'format': (None, 'wav'),
         }
         if seed:
-            data_payload["seed"] = seed
+            files['seed'] = (None, str(seed))
 
         max_retries = 5
         base_delay = 2
@@ -100,17 +99,15 @@ class SfxGenerator:
                 response = requests.post(
                     self.api_endpoint,
                     headers=self.headers,
-                    json=data_payload,  # Send as JSON
+                    files=files,
                     timeout=180,
                 )
                 response.raise_for_status()
 
                 # Success: response body is JSON with base64 audio
                 response_json = response.json()
-                audio_data = base64.b64decode(response_json["audio"][0]["data"])
-                actual_seed = response_json.get("seed") or response_json["audio"][
-                    0
-                ].get("seed", seed or 0)
+                audio_data = base64.b64decode(response_json["audio"])
+                actual_seed = response_json.get("seed", seed or 0)
 
                 logging.info(f"Successfully generated audio with seed: {actual_seed}")
                 return audio_data, actual_seed
