@@ -86,42 +86,76 @@ YouTubeのサムネイルには2MBのサイズ制限があるため、適切な�
 
 ### 2.4. コマンド例
 
-以下は、立ち絵 (`character.png`) と、サムネイル用に別途生成されたキャッチーなテキスト (`thumb_text.txt`) を合成するコマンドの一例です。
+以下は、立ち絵 (`character.png`) と、`thumbnail_text.json` から取得した `serif_text` と `situation_text` を合成するコマンドの一例です。
+この例では、`jq` を使ってJSONから値を抽出することを想定しています。
 
 ```bash
-# 変数設定
-CATCHY_TEXT=$(cat thumb_text.txt)
+# --- 変数設定 ---
+# thumbnail_text.json から、1番目のシーンの情報を取得
+JSON_FILE="assets/issues/123/thumbnail_text.json" # サンプルパス
+SERIF_TEXT=$(jq -r '.[0].serif_text' "$JSON_FILE")
+SITUATION_TEXT=$(jq -r '.[0].situation_text' "$JSON_FILE")
+
+# デザインやレイアウトに関する情報もJSONから取得できる
+# この例では簡略化のため、一部の値を固定で設定
+SERIF_COLOR=$(jq -r '.[0].layout.serif.color' "$JSON_FILE")
+SERIF_STROKE_COLOR=$(jq -r '.[0].layout.serif.stroke.color' "$JSON_FILE")
+
 FONT_PATH="/usr/share/fonts/opentype/noto/NotoSansJP-Bold.ttf"
 OUTPUT_DIR="thumb"
 OUTPUT_THUMBNAIL="${OUTPUT_DIR}/thumbnail.jpg"
+BG_IMAGE="background.png" # 事前に用意した背景画像
 
-# 出力ディレクトリがなければ作成
+# --- ディレクトリ作成 ---
 mkdir -p "$OUTPUT_DIR"
 
-# 1. テキストレイヤーを生成（白文字・黒縁）
+# --- テキストレイヤー生成 ---
+
+# 1. セリフテキストのレイヤーを生成
 convert \
   -background none \
-  -size 1000x400 \
+  -size 1000x300 \
   -font "$FONT_PATH" \
-  -pointsize 100 \
+  -pointsize 110 \
+  -fill "$SERIF_COLOR" \
+  -stroke "$SERIF_STROKE_COLOR" \
+  -strokewidth 6 \
+  -gravity center \
+  "caption:$SERIF_TEXT" \
+  serif_layer.png
+
+# 2. シチュエーションテキストのレイヤーを生成
+convert \
+  -background none \
+  -size 800x200 \
+  -font "$FONT_PATH" \
+  -pointsize 50 \
   -fill white \
   -stroke black \
-  -strokewidth 5 \
+  -strokewidth 3 \
   -gravity center \
-  "caption:$CATCHY_TEXT" \
-  text_layer.png
+  "caption:$SITUATION_TEXT" \
+  situation_layer.png
 
-# 2. 立ち絵とテキストを合成
-# まず1280x720の単色（例: 黒）のキャンバスを作成
-convert -size 1280x720 xc:black \
+# --- 合成 ---
+
+# 3. 背景、立ち絵、テキストレイヤーをすべて合成
+convert -size 1280x720 "$BG_IMAGE" \
   character.png -gravity center -composite \
-  text_layer.png -gravity south -geometry +0+50 -composite \
+  serif_layer.png -gravity center -geometry +0-120 -composite \
+  situation_layer.png -gravity south -geometry +0+80 -composite \
   -quality 85 \
   "$OUTPUT_THUMBNAIL"
 
-# 中間ファイルの削除
-rm text_layer.png
+# --- 中間ファイルの削除 ---
+rm serif_layer.png situation_layer.png
+
+echo "Thumbnail created at ${OUTPUT_THUMBNAIL}"
 ```
+
+**注記:**
+- 上記のコマンドは一例です。実際の `thumbnail_text.json` の内容（`position`, `size`など）に応じて、`-geometry` や `-pointsize` などのパラメータを動的に調整するスクリプトを組むことが理想的です。
+- 背景画像 (`background.png`) は、動画の雰囲気に合わせて別途用意する必要があります。単色の背景を使用する場合は `xc:black` などに置き換えてください。
 
 ### 2.5. 技術的要件
 
@@ -161,79 +195,134 @@ rm text_layer.png
 
 ---
 
-## 🎨 サムネイル用テキスト生成仕様
+# サムネイルテキスト生成AIプロンプト
 
-### 目的
-台本（`docs/` 配下）をもとに、YouTube/動画配信のサムネイル用テキストを自動生成する。
-出力は **JSON形式** とし、サムネイル合成パイプラインに渡せるようにする。
-画像は生成せず、立ち絵や背景との合成は別フローで行う。
+あなたは、プロの動画コンテンツプロデューサーです。
+提供された台本を読み込み、視聴者の心をつかむ魅力的でクリックしたくなるようなサムネイルのテキスト案を複数生成してください。
 
-### 処理フロー
-1. **シーン抽出**
-   - 相手からの問いかけ・挑発・緊迫や対立の瞬間を抽出
-   - 各シーンにタイトルを付ける
-   - 1回につき 3〜6 シーンを出力
+## 指示
 
-2. **テキスト生成**
-   - **セリフテキスト**: 登場人物の「相手」からの投げかけ（6〜16文字）
-   - **シチュエーションテキスト**: 背景や場面の補足（5〜10文字）
+1.  **台本を深く理解する:**
+    *   登場人物の関係性、感情の起伏、物語のクライマックスを正確に把握してください。
+    *   特に、恋愛感情が動く瞬間、対立、感動的なセリフに注目してください。
 
-3. **配置・デザイン提案**
-   - シーンごとに配置や色・フォントを変えて単調さを避ける
-   - 各要素に位置・サイズ・色・フォント・縁取り/影を指定
-   - `safe_area_pct` を設定し、立ち絵や重要部分との干渉を避ける
+2.  **3つのユニークなシーンを抽出する:**
+    *   台本全体から、最も視聴者の興味を引くと思われる3つの異なるシーンを選び出してください。
+    *   告白、嫉妬、感動的な約束、意味深な問いかけなど、感情が大きく動く部分を優先してください。
 
-### JSON 出力仕様
-- 出力は配列
-- 各要素に含めるフィールド:
-  - `scene_title`（シーンタイトル）
-  - `importance`（1〜3）
-  - `serif_text`（相手視点のセリフ）
-  - `situation_text`（補足テキスト）
-  - `layout`（serif/situation の配置・デザイン指定）
-  - `notes`（任意）
+3.  **各シーンのテキストを生成する:**
+    *   **セリフテキスト (`serif_text`):**
+        *   シーンを象徴する、最も印象的なセリフを6〜16文字で抜き出してください。長すぎる場合は、核心を失わないように要約してください。
+        *   視聴者が「どういうこと？」と続きが気になるような、インパクトのある部分を選んでください。
+    *   **シチュエーションテキスト (`situation_text`):**
+        *   セリフだけでは伝わらない状況や雰囲気を5〜10文字で補足してください。（例：「夜の公園で二人きり」「彼の部屋で」「突然の雨」）
+        *   SFX（効果音）の記述も参考にしてください。
 
-### 出力例
+4.  **デザインとレイアウトを提案する:**
+    *   各シーンの雰囲気に合わせて、最適なデザインを提案してください。
+    *   `importance`（重要度）が3の場合は、中央に大きく、派手な色（赤など）を使って最も目立たせてください。
+    *   `importance`が低い場合は、端に配置し、落ち着いた色を使ってください。
+    *   可読性を最大限に高めるため、必ず縁取り（`stroke`）や影（`shadow`）を付けてください。
+
+5.  **JSON形式で出力する:**
+    *   以下の「JSON出力仕様」に厳密に従って、JSON配列形式で出力してください。
+    *   JSON以外のテキスト（説明文、言い訳など）は一切含めないでください。
+
+## JSON出力仕様
+
 ```json
 [
   {
-    "scene_title": "疑念が走る会議室",
+    "scene_title": "（シーンのタイトル）",
+    "importance": "（1〜3の重要度）",
+    "serif_text": "（抽出・要約したセリフ）",
+    "situation_text": "（状況を補足するテキスト）",
+    "layout": {
+      "serif": {
+        "position": "（center, top-left, bottom-rightなど）",
+        "size": "（xl, l, m）",
+        "color": "（#FFFFFFなど）",
+        "font": "bold gothic",
+        "stroke": { "color": "#000000", "width_px": "（整数）" }
+      },
+      "situation": {
+        "position": "（center, top-left, bottom-rightなど）",
+        "size": "（m, sm, xs）",
+        "color": "（#FFEE58など）",
+        "font": "handwriting",
+        "stroke": { "color": "#000000", "width_px": "（整数）" }
+      }
+    },
+    "notes": "（デザインの意図や補足事項）"
+  }
+]
+```
+
+---
+
+## 良い出力例
+
+```json
+[
+  {
+    "scene_title": "夜の公園での告白",
     "importance": 3,
-    "serif_text": "君はそれで後悔しないの？",
-    "situation_text": "会議室の緊張",
+    "serif_text": "…君のことが、…好きだ。",
+    "situation_text": "静かな水辺",
     "layout": {
       "serif": {
         "position": "center",
         "size": "xl",
         "color": "#E53935",
         "font": "bold gothic",
-        "stroke": { "color": "#000000", "width_px": 6 },
-        "shadow": { "enabled": true, "blur_px": 12, "color": "#00000080", "offset_xy": [2,2] },
-        "rotation_deg": 0,
-        "max_width_pct": 80,
-        "z_index": 5
+        "stroke": { "color": "#000000", "width_px": 6 }
       },
       "situation": {
         "position": "bottom-center",
         "size": "sm",
         "color": "#FFEE58",
         "font": "handwriting",
-        "stroke": { "color": "#000000", "width_px": 3 },
-        "shadow": { "enabled": true, "blur_px": 8, "color": "#00000066", "offset_xy": [1,2] },
-        "rotation_deg": 0,
-        "max_width_pct": 60,
-        "z_index": 4
-      },
-      "safe_area_pct": { "top": 6, "right": 6, "bottom": 8, "left": 6 }
+        "stroke": { "color": "#000000", "width_px": 3 }
+      }
     },
-    "notes": "立ち絵が右寄り想定。中央のセリフは顔に被らない高さで配置。"
+    "notes": "最も重要な告白シーン。セリフを中央に大きく配置して強調。"
+  },
+  {
+    "scene_title": "優しい気遣い",
+    "importance": 2,
+    "serif_text": "寒くないか？…これ、使えよ。",
+    "situation_text": "ジャケットをかける音",
+    "layout": {
+      "serif": {
+        "position": "top-left",
+        "size": "l",
+        "color": "#FFFFFF",
+        "font": "bold gothic",
+        "stroke": { "color": "#000000", "width_px": 5 }
+      },
+      "situation": {
+        "position": "top-left",
+        "size": "xs",
+        "color": "#FFFFFF",
+        "font": "handwriting",
+        "stroke": { "color": "#000000", "width_px": 2 }
+      }
+    },
+    "notes": "キャラクターの優しさが伝わるシーン。立ち絵の右側を想定した配置。"
   }
 ]
 ```
 
-### 運用メモ
+## 悪い出力例（このような出力は避けてください）
 
-* `importance=3`: 中央配置＋大きめ＋派手な色で強調
-* `importance=1`: 端配置＋落ち着いた配色
-* 可読性のため必ず stroke または shadow を付与
-* JSON は自動処理パイプラインにそのまま投入可能
+*   **JSON形式ではない:**
+    `はい、承知いたしました。台本を分析し、最適なテキスト案を3つ作成しました。最初のシーンは...`
+*   **セリフが長すぎる:**
+    `"serif_text": "昼間は、ああいう騒がしい場所にいると、どうも落ち着かなくて…。君も、疲れただろ？　…悪かったな、急に連れ出して。"`
+*   **レイアウト指定がない、または不完全:**
+    `"layout": { "serif": { "position": "center" } }`
+
+---
+
+**以上の指示を厳守し、最高のサムネイルテキストを生成してください。**
+**以下に台本を提示します。**
