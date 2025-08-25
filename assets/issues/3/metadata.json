@@ -6,7 +6,7 @@
     "model": "imagen-4.0-generate-001",
     "style": "anime-cell-shaded",
     "lighting": "soft backlight, pastel tone",
-    "prompt_summary": "Kenji Tanaka, anime, cell-shaded, clean line, high quality"
+    "prompt_summary": "Senpai, anime, cell-shaded, clean line, high quality"
   },
   "script": {
     "special_rule": "dialog_only_sfx_romantic_focus",
@@ -16,5 +16,25 @@
       "format": "japanese_onomatopoeia_with_description"
     },
     "word_count_estimate": 2000
+  },
+  "title": {
+    "path": "assets/issues/3/text/title.txt",
+    "size_bytes": 31,
+    "created_at": "2025-08-22T21:07:35.348658Z"
+  },
+  "summary": {
+    "path": "assets/issues/3/text/summary.txt",
+    "size_bytes": 68,
+    "created_at": "2025-08-22T21:07:35.348743Z"
+  },
+  "audio": {
+    "path": "assets/issues/3/audio/ambience.mp3",
+    "size_bytes": 226807,
+    "created_at": "2025-08-22T21:07:35.348757Z"
+  },
+  "thumbnail": {
+    "path": "assets/issues/3/thumbnail/thumbnail.jpg",
+    "size_bytes": 102558,
+    "created_at": "2025-08-22T21:07:35.348769Z"
   }
 }

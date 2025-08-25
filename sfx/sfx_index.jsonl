@@ -1,0 +1,2 @@
+{"type": "run_summary", "prompts_file": "assets/issues/3/sfx_prompts.txt", "sfx_limit": 5, "sfx_total_in_script": 1, "sfx_generated": 1, "sfx_skipped": 0, "created_at": "2025-08-22T14:31:28.170129Z"}
+{"file": "quiet_park_at_night_01.wav", "prompt": "Quiet park at night, sound of a gentle breeze rustling leaves, a small stream babbling nearby, peaceful and continuous loopable ambient sound", "duration": 12, "seed": 1379399010, "sr": 44100, "issue_id": "3", "created_at": "2025-08-22T14:31:28.170074Z"}

@@ -1,0 +1,89 @@
+[
+  {
+    "scene_title": "夜の公園での告白",
+    "importance": 3,
+    "serif_text": "…お前のことが、…好きだ。",
+    "situation_text": "二人きりの公園で",
+    "layout": {
+      "serif": {
+        "position": "center",
+        "size": "xl",
+        "color": "#E53935",
+        "font": "bold gothic",
+        "stroke": {
+          "color": "#000000",
+          "width_px": 6
+        }
+      },
+      "situation": {
+        "position": "bottom-center",
+        "size": "sm",
+        "color": "#FFEE58",
+        "font": "handwriting",
+        "stroke": {
+          "color": "#000000",
+          "width_px": 3
+        }
+      }
+    },
+    "notes": "物語の核心となる告白シーン。視聴者の感情に最も強く訴えかけるため、セリフを中央に大きく、インパクトのある赤色で配置。"
+  },
+  {
+    "scene_title": "不意打ちの接近",
+    "importance": 2,
+    "serif_text": "こっち、もっと近くに来いよ",
+    "situation_text": "静かなベンチで",
+    "layout": {
+      "serif": {
+        "position": "top-right",
+        "size": "l",
+        "color": "#FFFFFF",
+        "font": "bold gothic",
+        "stroke": {
+          "color": "#000000",
+          "width_px": 5
+        }
+      },
+      "situation": {
+        "position": "top-right",
+        "size": "xs",
+        "color": "#FFFFFF",
+        "font": "handwriting",
+        "stroke": {
+          "color": "#000000",
+          "width_px": 2
+        }
+      }
+    },
+    "notes": "告白前のドキッとするシーン。キャラクターの表情が見えるように、テキストは右上に配置。期待感を煽る。"
+  },
+  {
+    "scene_title": "告白後の切ない願い",
+    "importance": 1,
+    "serif_text": "今夜だけは、こうしていてもいいか？",
+    "situation_text": "彼のコートの温もり",
+    "layout": {
+      "serif": {
+        "position": "bottom-left",
+        "size": "m",
+        "color": "#FFFFFF",
+        "font": "bold gothic",
+        "stroke": {
+          "color": "#000000",
+          "width_px": 4
+        }
+      },
+      "situation": {
+        "position": "bottom-left",
+        "size": "sm",
+        "color": "#FFEE58",
+        "font": "handwriting",
+        "stroke": {
+          "color": "#000000",
+          "width_px": 2
+        }
+      }
+    },
+    "notes": "告白後の繊細な心境を表すシーン。控えめに左下に配置し、切ない雰囲気を演出。状況テキストで親密さを補足。"
+  }
+]
