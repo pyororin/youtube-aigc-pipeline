@@ -6,7 +6,7 @@
     "model": "imagen-4.0-generate-001",
     "style": "anime-cell-shaded",
     "lighting": "soft backlight, pastel tone",
-    "prompt_summary": "Senpai, anime, cell-shaded, clean line, high quality"
+    "prompt_summary": "thumbnail, anime, cell-shaded, clean line, high quality"
   },
   "script": {
     "special_rule": "dialog_only_sfx_romantic_focus",
